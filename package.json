@@ -1,17 +1,20 @@
 {
-  "name": "mr302",
+  "name": "mrproxy",
   "version": "0.0.0",
   "author": {
     "name": "Nodejitsu Inc.",
     "email": "support@nodejitsu.com"
   },
-  "description": "This server does one thing, and it does it well.\n\nRedirects.",
-  "homepage": "http://github.com/jesusabdullah/mr302",
+  "description": "This server does one thing, and it does it well.\n\nProxy.",
+  "homepage": "http://github.com/jesusabdullah/mrproxy",
   "scripts": {
-    "start": "node ./mr302.js"
+    "start": "node ./mrproxy.js"
   },
   "engines": {
     "node": "~0.6.x"
   },
-  "analyze": false
+  "analyze": false,
+  "dependencies": {
+    "http-proxy": "~0.8.1"
+  }
 }

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 var http = require('http'),
+    Proxy = require('http-proxy').RoutingProxy,
+    proxy = new Proxy(),
+    url = require('url'),
     util = require('util'),
     config = require('./config.json');
 
@@ -19,7 +22,7 @@ function log() {
   console.log.apply(null, [ str ].concat(argv));
 }
 
-log('Hi! I am mr302!');
+log('Hi! I am mrproxy!');
 
 process.on('uncaughtException', function (err) {
   var msg = err.message.split('\n'),
@@ -38,8 +41,9 @@ process.on('uncaughtException', function (err) {
   process.exit(1);
 });
 
-var url = config.url,
-    statusCode = parseInt(config.statusCode, 10) || 302;
+var parsed = url.parse(config.url),
+    host = parsed.hostname,
+    port = parsed.port || 80;
 
 function clientIp(req) {
   return (
@@ -49,26 +53,11 @@ function clientIp(req) {
   );
 };
 
-if (statusCode < 301 || statusCode > 302) {
-  throw new Error([
-    'I can only 301 and 302 redirects!',
-    '',
-    'Please set "statusCode" in your config.json to either:',
-    '',
-    ' * 301: Permanent redirects (permanently cached by the browser)',
-    ' * 302: Ephemeral redirects (browser checks the server each time)',
-    '',
-    'Or, just leave it blank for a sane default (302)!',
-    ''
-  ].join('\n'));
-}
-
-log('I\'m doing %d redirects to %s today!', statusCode, url);
+log('I\'m proxying requests to %s:%d today!', host, port);
 
 var server = http.createServer(function (req, res) {
-  res.writeHead(statusCode, {'Location': url });
-  res.end();
-  log('%d redirected client at %s to %s !', statusCode, clientIp(req), url);
+  log('Proxied client at %s to %s:%d !', clientIp(req), host, port);
+  proxy.proxyRequest(req, res, { port: port, host: host });
 });
 
 server.listen(8080, function (err) {
